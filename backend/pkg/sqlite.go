@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"migration-lol/cmd"
+	"social-network/backend/pkg/cmd"
 )
 
 func main() {

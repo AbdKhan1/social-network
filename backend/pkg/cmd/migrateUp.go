@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"migration-lol/database"
+	"social-network/backend/pkg/database"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"
