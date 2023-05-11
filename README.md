@@ -36,7 +36,7 @@ After cloning the directory and changing into the `social-network` directory
 - Run $ `docker run -p 8080:8080 -it social-network` (The -p flag handles the port. The -it flags start a session with the container)
   Next, open another terminal for the frontend docker image and run the following:
 - Run $ `docker build -t frontend -f frontend/Dockerfile .` (The -f specifies the location of the dockerfile)
-- Run $ `docker run -p 3000:3000 -it social-network`
+- Run $ `docker run -p 3000:3000 -it frontend`
 
 ## Built With
 
