@@ -4,9 +4,11 @@ import { Notification } from "./Notifications";
 export default function RightSide(props) {
   useEffect(() => {
     const getAllNotifications = async () => {
-      const connectionResponse = await props["openConnection"]();
-      if (connectionResponse === "connection open") {
-        props["fetchRequestData"]();
+      if (props["openConnection"] !== undefined) {
+        const connectionResponse = await props["openConnection"]();
+        if (connectionResponse === "connection open") {
+          props["fetchRequestData"]();
+        }
       }
     };
     getAllNotifications();
@@ -21,7 +23,7 @@ export default function RightSide(props) {
         margin: props.page === "profiles" && "20px",
       }}
     >
-      <Notification />
+      <Notification page={props.page} />
     </div>
   );
 }

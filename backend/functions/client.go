@@ -354,6 +354,17 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 					groupFields := GetGroup(requestNotif.GroupId)
 					message := message{incomingData: RequestNotifcationFields{GroupRequest: groupFields}}
 					s.conn.send <- message
+				} else if requestNotif.TypeOfAction == "send-group-request" {
+					groupFields := GetGroup(requestNotif.GroupId)
+					message := message{incomingData: RequestNotifcationFields{GroupAction: GroupAcceptNotification{
+						User:        requestNotif.Sender,
+						Admin:       requestNotif.Receiver,
+						Action:      requestNotif.TypeOfAction,
+						GroupName:   groupFields.Name,
+						GroupAvatar: groupFields.Avatar,
+						GroupId:     requestNotif.GroupId,
+					}}}
+					s.conn.send <- message
 				} else if requestNotif.TypeOfAction == "accepted-group-request" {
 					groupFields := GetGroup(requestNotif.GroupId)
 					message := message{incomingData: RequestNotifcationFields{GroupAction: GroupAcceptNotification{

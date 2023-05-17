@@ -1229,11 +1229,9 @@ func EventInteractions(w http.ResponseWriter, r *http.Request) {
 }
 
 func FetchAllNotifications(w http.ResponseWriter, r *http.Request) {
-	var requestNotifExist []RequestNotifcationFields
-	var chatNotifExist []ChatNotifcationFields
 	var username = LoggedInUser(r).Nickname
-	requestNotifExist = GetAllRequestNotifs(username)
-	chatNotifExist = GetAllChatNotifs(username)
+	requestNotifExist := GetAllRequestNotifs(username)
+	chatNotifExist := GetAllChatNotifs(username)
 	userSubscription := H.user[username]
 
 	for s, online := range userSubscription {
@@ -1244,44 +1242,72 @@ func FetchAllNotifications(w http.ResponseWriter, r *http.Request) {
 			}
 			if len(requestNotifExist) > 0 {
 				for _, requestNotif := range requestNotifExist {
-					if requestNotif.TypeOfAction == "groupRequest" {
-						groupFields := GetGroup(requestNotif.GroupId)
-						message := message{incomingData: RequestNotifcationFields{GroupRequest: groupFields}}
-						s.conn.send <- message
-					} else if requestNotif.TypeOfAction == "accepted-group-request" {
-						groupFields := GetGroup(requestNotif.GroupId)
-						message := message{incomingData: RequestNotifcationFields{GroupAction: GroupAcceptNotification{
-							User:        requestNotif.Sender,
-							Admin:       requestNotif.Receiver,
-							Action:      requestNotif.TypeOfAction,
-							GroupName:   groupFields.Name,
-							GroupAvatar: groupFields.Avatar,
-							GroupId:     requestNotif.GroupId,
-						}}}
-						s.conn.send <- message
-					} else if requestNotif.TypeOfAction == "event-notif" {
-						groupFields := GetGroup(requestNotif.GroupId)
-						message := message{incomingData: RequestNotifcationFields{GroupAction: GroupAcceptNotification{
-							User:        requestNotif.Receiver,
-							Admin:       requestNotif.Sender,
-							Action:      requestNotif.TypeOfAction,
-							GroupName:   groupFields.Name,
-							GroupAvatar: groupFields.Avatar,
-							GroupId:     requestNotif.GroupId,
-						}}}
+					if requestNotif.GroupId == "" {
+						//get the follower's email
+						db := OpenDB()
+						row, err := PreparedQuery("SELECT * FROM users WHERE nickname = ?", requestNotif.Sender, db, "GetUserFromFollowers")
+						//...
+						sender := QueryUser(row, err)
+						user := LoggedInUser(r)
+						followMessage := followMessage{
+							ToFollow:      user.Email,
+							FollowRequest: sender.Email,
+							IsFollowing:   false, Followers: GetTotalFollowers(user.Email),
+							FollowRequestUsername: sender.Nickname,
+							FolloweeUsername:      user.Nickname,
+						}
+						message := message{incomingData: RequestNotifcationFields{FollowRequest: followMessage}}
 						s.conn.send <- message
 					} else {
-						groupFields := GetGroup(requestNotif.GroupId)
-						message := message{incomingData: RequestNotifcationFields{GroupAction: GroupAcceptNotification{
-							User:        requestNotif.Receiver,
-							Admin:       groupFields.Admin,
-							Action:      requestNotif.TypeOfAction,
-							GroupName:   groupFields.Name,
-							GroupAvatar: groupFields.Avatar,
-							GroupId:     requestNotif.GroupId,
-						}}}
-						s.conn.send <- message
-
+						if requestNotif.TypeOfAction == "groupRequest" {	
+							groupFields := GetGroup(requestNotif.GroupId)
+							message := message{incomingData: RequestNotifcationFields{GroupRequest: groupFields}}
+							s.conn.send <- message
+						}else if requestNotif.TypeOfAction == "send-group-request" {
+								groupFields := GetGroup(requestNotif.GroupId)
+								message := message{incomingData: RequestNotifcationFields{GroupAction: GroupAcceptNotification{
+									User:        requestNotif.Sender,
+									Admin:       requestNotif.Receiver,
+									Action:      requestNotif.TypeOfAction,
+									GroupName:   groupFields.Name,
+									GroupAvatar: groupFields.Avatar,
+									GroupId:     requestNotif.GroupId,
+								}}}
+								s.conn.send <- message
+						} else if requestNotif.TypeOfAction == "accepted-group-request" {
+							groupFields := GetGroup(requestNotif.GroupId)
+							message := message{incomingData: RequestNotifcationFields{GroupAction: GroupAcceptNotification{
+								User:        requestNotif.Sender,
+								Admin:       requestNotif.Receiver,
+								Action:      requestNotif.TypeOfAction,
+								GroupName:   groupFields.Name,
+								GroupAvatar: groupFields.Avatar,
+								GroupId:     requestNotif.GroupId,
+							}}}
+							s.conn.send <- message
+						} else if requestNotif.TypeOfAction == "event-notif" {
+							groupFields := GetGroup(requestNotif.GroupId)
+							message := message{incomingData: RequestNotifcationFields{GroupAction: GroupAcceptNotification{
+								User:        requestNotif.Receiver,
+								Admin:       requestNotif.Sender,
+								Action:      requestNotif.TypeOfAction,
+								GroupName:   groupFields.Name,
+								GroupAvatar: groupFields.Avatar,
+								GroupId:     requestNotif.GroupId,
+							}}}
+							s.conn.send <- message
+						} else {
+							groupFields := GetGroup(requestNotif.GroupId)
+							message := message{incomingData: RequestNotifcationFields{GroupAction: GroupAcceptNotification{
+								User:        requestNotif.Receiver,
+								Admin:       groupFields.Admin,
+								Action:      requestNotif.TypeOfAction,
+								GroupName:   groupFields.Name,
+								GroupAvatar: groupFields.Avatar,
+								GroupId:     requestNotif.GroupId,
+							}}}
+							s.conn.send <- message
+						}
 					}
 				}
 			}

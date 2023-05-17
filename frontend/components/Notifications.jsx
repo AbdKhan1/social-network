@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import 'react-toastify/dist/ReactToastify.min.css'
 
 
-export function Notification() {
+export function Notification(props) {
     return (
         <>
             <ToastContainer
@@ -14,7 +14,10 @@ export function Notification() {
                     position: "inherit",
                     width: "var(--toastify-toast-width)",
                     boxSizing: "border-box",
-                    color: "#fff"
+                    color: "#fff",
+                    display: props.page === "profiles" && 'flex',
+                    flexDirection: props.page === "profiles" && 'row',
+                    width: props.page === "profiles" && "100%",
                 }}
                 autoClose={false}
                 hideProgressBar={false}

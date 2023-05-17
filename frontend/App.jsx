@@ -64,11 +64,12 @@ function App() {
       obj["notification-sender"] != "" &&
       obj["notification-sender"] !== undefined
     ) {
+      console.log(obj);
       toast(
         "🦄 " +
-        `${obj["notification-numOfMessages"]}` +
-        " message(s) from: " +
-        `${obj["notification-sender"]}`,
+          `${obj["notification-numOfMessages"]}` +
+          " message(s) from: " +
+          `${obj["notification-sender"]}`,
         {
           data: {
             title: "messages",
@@ -603,7 +604,6 @@ function App() {
               setUser={setUser}
               openConnection={openConnection}
               fetchRequestData={fetchRequestData}
-
             />
           }
         />

@@ -791,7 +791,8 @@ main {
   overflow: auto;
 }
 .comment-view {
-  overflow: hidden;
+  overflow: auto;
+  height: max-content !important;
 }
 .close-button {
   width: 50px;
@@ -1685,10 +1686,10 @@ main {
   overflow-y: auto;
 }
 .Toastify__toast {
-  margin-bottom: 10px;
   border-radius: 30%;
   border-radius: 24px;
-  margin-bottom: 10px;
+  margin: 0px 10px 10px 0px;
+  height: max-content;
 }
 .button-85 {
   border: none;
