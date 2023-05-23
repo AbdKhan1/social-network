@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"social-network/backend/functions"
 	// "social-network/backend/websocket"
 )
 
-func main() {
+func Handler(w http.ResponseWriter, r *http.Request) {
 	// Create tabless
 	functions.CreateSqlTables()
 	// Serve files within static and public
@@ -70,9 +69,5 @@ func main() {
 
 	go functions.H.Run()
 	go functions.SqlExec.ExecuteStatements()
-
-	fmt.Printf("SOCIAL-NETWORK serving at http://localhost:8080\n")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal(err)
-	}
+	fmt.Fprintf(w, "<h1>Hello from Go!</h1>")
 }
